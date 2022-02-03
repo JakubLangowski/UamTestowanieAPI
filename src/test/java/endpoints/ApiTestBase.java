@@ -11,6 +11,8 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import models.HeaderLinks;
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,10 +42,10 @@ public abstract class ApiTestBase {
     public void assertLinkHeaders(Response response, Integer page, Integer pageSize) throws URISyntaxException {
 
         int total = Integer.parseInt(response.getHeader("total-count"));
-        var resultHeaderLinks = response.headers().getValue("link");
+        String resultHeaderLinks = response.headers().getValue("link");
 
-        var lastPage = Math.ceil(total / (float)pageSize);
-        var expectedLinks = new HeaderLinks();
+        Double lastPage = Math.ceil(total / (float)pageSize);
+        HeaderLinks expectedLinks = new HeaderLinks();
         if (page > 1) {
             expectedLinks.setFirst(true);
             expectedLinks.setPrev(true);
@@ -53,38 +55,38 @@ public abstract class ApiTestBase {
             expectedLinks.setLast(true);
         }
 
-        var headerLinks = new HeaderLinks();
+        HeaderLinks headerLinks = new HeaderLinks();
 
-        for (var resultHeaderLink: resultHeaderLinks.split(",")) {
-            var headerLink = resultHeaderLink.trim().split(";");
-            var url = headerLink[0].subSequence(1, headerLink[0].length() - 1).toString();
-            var rel = headerLink[1].subSequence(6, headerLink[1].length() - 1).toString();
+        for (String resultHeaderLink: resultHeaderLinks.split(",")) {
+            String[] headerLink = resultHeaderLink.trim().split(";");
+            String url = headerLink[0].subSequence(1, headerLink[0].length() - 1).toString();
+            String rel = headerLink[1].subSequence(6, headerLink[1].length() - 1).toString();
 
-            var builder = new URIBuilder(url);
-            var queryPageParam = 0;
-            for (var param: builder.getQueryParams()){
+            URIBuilder builder = new URIBuilder(url);
+            int queryPageParam = 0;
+            for (NameValuePair param: builder.getQueryParams()){
                 if (Objects.equals(param.getName(), "page")) {
                     queryPageParam = Integer.parseInt(param.getValue());
                 }
             }
 
             switch (rel) {
-                case "first" -> {
+                case "first":
                     headerLinks.setFirst(true);
                     headerLinks.setFirstPage(queryPageParam);
-                }
-                case "last" -> {
+                    break;
+                case "last":
                     headerLinks.setLast(true);
                     headerLinks.setLastPage(queryPageParam);
-                }
-                case "next" -> {
+                    break;
+                case "next":
                     headerLinks.setNext(true);
                     headerLinks.setNextPage(queryPageParam);
-                }
-                case "prev" -> {
+                    break;
+                case "prev":
                     headerLinks.setPrev(true);
                     headerLinks.setPrevPage(queryPageParam);
-                }
+                    break;
             }
         }
 
@@ -105,16 +107,16 @@ public abstract class ApiTestBase {
 
     public void assertOK(ValidatableResponse response){
         response
-            .assertThat().statusCode(200)
-            .assertThat().contentType(ContentType.JSON);
+                .assertThat().statusCode(200)
+                .assertThat().contentType(ContentType.JSON);
     }
 
     public void assertNotFound(ValidatableResponse response){
         response
-            .assertThat().statusCode(404)
-            .assertThat().contentType(ContentType.JSON)
-            .assertThat().body("status", is(404))
-            .assertThat().body("error", is("Not Found"));
+                .assertThat().statusCode(404)
+                .assertThat().contentType(ContentType.JSON)
+                .assertThat().body("status", is(404))
+                .assertThat().body("error", is("Not Found"));
     }
 
     public void assertPaginationHeaders(ValidatableResponse response, Integer pageSize, Integer count) {

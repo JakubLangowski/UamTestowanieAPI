@@ -30,7 +30,7 @@ public class CardEndpointTests extends ApiTestBase  {
     })
     void Get_ShouldReturn_Success_ProperResponse(String cardId)
     {
-        var response = makeRequest(cardId);
+        ValidatableResponse response = makeRequest(cardId);
         assertOK(response);
     }
 
@@ -42,7 +42,7 @@ public class CardEndpointTests extends ApiTestBase  {
     })
     void Get_ById_ShouldReturn_NotFound_IfCardDontExist(String cardId)
     {
-        var response = makeRequest(cardId);
+        ValidatableResponse response = makeRequest(cardId);
         assertNotFound(response);
     }
 
@@ -50,7 +50,7 @@ public class CardEndpointTests extends ApiTestBase  {
     @ValueSource(ints = { 100000, -1, 0 })
     void Get_ByMultiverseId_ShouldReturn_NotFound_IfCardDontExist(int cardId)
     {
-        var response = makeRequest(cardId);
+        ValidatableResponse response = makeRequest(cardId);
         assertNotFound(response);
     }
 
@@ -61,7 +61,7 @@ public class CardEndpointTests extends ApiTestBase  {
     })
     public void Get_ById_ShouldMatchJsonSchema(String cardId)
     {
-        var response = makeRequest(cardId);
+        ValidatableResponse response = makeRequest(cardId);
         assertJsonSchema("card.schema.json", response);
     }
 
@@ -69,7 +69,7 @@ public class CardEndpointTests extends ApiTestBase  {
     @ValueSource(ints = { 97051, 457145 })
     public void Get_ByMultiverseId_ShouldMatchJsonSchema(int cardId)
     {
-        var response = makeRequest(cardId);
+        ValidatableResponse response = makeRequest(cardId);
         assertJsonSchema("card.schema.json", response);
     }
 }

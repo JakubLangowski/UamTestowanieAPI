@@ -20,21 +20,21 @@ public class SetEndpointTests extends ApiTestBase {
     @ValueSource(strings = {"PMMQ", "J20", "PM15"})
     void Get_ShouldReturn_Success_ProperResponse(String setId)
     {
-        var response = makeRequest(setId);
+        ValidatableResponse response = makeRequest(setId);
         assertOK(response);
     }
 
     @Test
     void Get__ById_ShouldReturn_NotFound_IfCardDontExist()
     {
-        var response = makeRequest("abcd");
+        ValidatableResponse response = makeRequest("abcd");
         assertNotFound(response);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"RNA", "PKLD", "HA2"})
     public void Get_ById_ShouldMatchJsonSchema(String setId) {
-        var response = makeRequest(setId);
+        ValidatableResponse response = makeRequest(setId);
         assertJsonSchema("set.schema.json", response);
     }
 
